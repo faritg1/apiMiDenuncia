@@ -6,7 +6,7 @@ const app = express()
 const User=require('./models').user
 
 ////aqui hacemos las importaciones y que todo quede dentro de ella
-const express = require('express');
+
 const dotenv = require('dotenv');
 const cors = require('cors')
 // const session = require('express-session');
