@@ -15,7 +15,7 @@
   "test": {
     "username": "root",
     "password": "HtHPNlZze083nigzzeIB",
-    "database": "miDenuncia",
+    "database": "railway",
     "host": "containers-us-west-163.railway.app",
     "dialect": "mysql",
     "port":7956,
@@ -28,7 +28,7 @@
   "production": {
     "username": "root",
     "password": "HtHPNlZze083nigzzeIB",
-    "database": "miDenuncia",
+    "database": "railway",
     "host": "containers-us-west-163.railway.app",
     "dialect": "mysql",
     "port":7956,
