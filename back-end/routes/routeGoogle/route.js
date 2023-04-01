@@ -4,7 +4,7 @@ const router = express.Router()
 const passport= require('passport');
 const session = require('express-session');
 const googleController = require('../../controllers/google/googlePassportController')
-const app=express
+
 
 app.use(passport.initialize());
 app.use(session({
