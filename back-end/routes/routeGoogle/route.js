@@ -7,11 +7,11 @@ const googleController = require('../../controllers/google/googlePassportControl
 const app=require('../../app')
 
 app.use(passport.initialize());
-app.use(session({
-    secret: process.env.JWT_SECRET,
-    resave: false,
-    saveUninitialized: false
-  }));
+// app.use(session({
+//     secret: process.env.JWT_SECRET,
+//     resave: false,
+//     saveUninitialized: false
+//   }));
   
   
   
