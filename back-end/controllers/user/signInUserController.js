@@ -15,8 +15,8 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store)//este
 
 
 
-const dbSequelize=new Sequelize('raywail', 'root', null, {//instancia de sequelize
-
+const dbSequelize=new Sequelize('railway', 'root', null, {//instancia de sequelize
+    
     dialect: 'mysql',
     storage: 'session.mysql' //este sera el archivo de almacenamiento
 
