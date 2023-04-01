@@ -4,14 +4,8 @@ const jwt = require('jsonwebtoken');
 const dotenv=require('dotenv')
 dotenv.config()
 
-
-
-
 exports.signIn = async (req, res, next) => {
 
-    
-     
-      
     try {
 
         let { nickname, password } = req.body;
@@ -30,24 +24,12 @@ exports.signIn = async (req, res, next) => {
 
                 if (bcrypt.compareSync(password, user.password)) {
 
-                   
-                    // app.use(session({
-                    //     secret: 'mysecret',
-                    //     resave: false,
-                    //     saveUninitialized: false,
-                    //     store: store
-                    //   }));
-                   
 
 
                     let token = jwt.sign({
                         user
                     }, process.env.JWT_SECRET, { expiresIn: '1h' });
                     res.json({ user, token })
-                    req.session.username = user;
-
-
-                   
                 } else {
                     res.status(401).json({ message: 'contraseña no es correcta' })
                 }

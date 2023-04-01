@@ -1,35 +1,26 @@
 
+const app=require('./app')
+const bcrypt=require('bcrypt')
 
 const User=require('./models').user
+const SessionModel=require('./modeloMongo/sessionMongodb')
 
 ////aqui hacemos las importaciones y que todo quede dentro de ella
 const express = require('express');
-
-const mongoose= require('./services/mongoDB')
-
-const session = require('express-session');
-const MongoDBStore  = require('connect-mongodb-session')(session);
-//const MongoStore = require('connect-mongo')(session);
-const Session = require('./services/sessionMongodb')
-
-const cors = require('cors')
 const dotenv = require('dotenv');
-
-
-// const MongoDBStore = require('connect-mongodb-session')(session);
-// const { MongoClient } = require('mongodb');
-
+const cors = require('cors')
 // const session = require('express-session');
 //const { auth } = require('express-openid-connect');
-
-dotenv.config()
-
-const app=require('./app')
-
-const passport= require('passport');
-
-const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
+dotenv.config()
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+
+
+
+let cookieParser = require('cookie-parser')
 
 //FIN
 ////////////////////////////////////////////////////////////////
@@ -45,20 +36,35 @@ const handleError = require('./handlers/handlerError')
 
 //FIN
 ////////////////////////////////////////////////////////////////
-// const mongoStore = MongoStore.create({
-//   mongoUrl: 'mongodb+srv://midenuncia:MIDENUNCIA2023@api-session.gu6bn9e.mongodb.net/api-session?retryWrites=true&w=majority',
-//   mongoOptions: {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   },
-//   ttl: 60 * 60 * 24 // Tiempo de vida de la sesión en segundos (en este caso, 1 día)
-// });
+ mongoose.connect('mongodb+srv://midenuncia:MIDENUNCIA2023@api-session.gu6bn9e.mongodb.net/?retryWrites=true&w=majority', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+ // useCreateIndex: true
+});
 
 
+app.use(session({
+  secret: 'mysecret', // secreto para firmar las cookies de sesión
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({ mongoUrl: 'mongodb+srv://midenuncia:MIDENUNCIA2023@api-session.gu6bn9e.mongodb.net/?retryWrites=true&w=majority',
+  crypto: {
+    secret: 'secret'
+  },
+  collection: 'sessions',
+  // expires: 60 * 60 * 24 * 7, // 7 days
+  expires: 120, // 2 minutes
+  model: SessionModel,
+  
+  // ttl: 24 * 60 * 60, // 1 día de vida útil })
+})}));
+
+
+//////////////////////////////////
 
 
 /// codigo especial para procesar solicitudes HTTP y expres json lo convierta en json
-
+app.use(cookieParser())
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -66,89 +72,19 @@ app.use(express.json());
 app.use(cors()); //proteccion de cabecera
 app.use(morgan('tiny'));//monitoreo de solicitudes
 ////////////////////////////////////////////////////////////////
-// const store = new MongoDBStore({
-//   uri: 'mongodb+srv://midenuncia:MIDENUNCIA2023@api-session.gu6bn9e.mongodb.net/api-sessions',
-//   collection: 'session'
-// });
-// store.on('error', function(error) {
-//   console.log(error);
-// });
-
-
-// app.use(session({
-//   secret: 'This is a secret',
-//   cookie: {
-//     maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
-//   },
-//   store: store,
-//   // Boilerplate options, see:
-//   // * https://www.npmjs.com/package/express-session#resave
-//   // * https://www.npmjs.com/package/express-session#saveuninitialized
-//   resave: true,
-//   saveUninitialized: true
-// }));
-
-
-app.use(session({
-  secret: 'This is a secret',
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
-  },
-
-  resave: true,
-  saveUninitialized: true,
-  store: new MongoDBStore ({
-    uri: 'mongodb+srv://midenuncia:MIDENUNCIA2023@api-session.gu6bn9e.mongodb.net/api-sessions',
-    collection: 'mysessions',
-   
-  }),
- 
- 
-// Guardar el documento en la colección
- 
-}));
 
 ///aqui se configura la ENTRADA  A LAS RUTAS trabajando  solo rutas
-app.use(cookieParser())
+
 app.use('/',routes)
 app.use('/',routeRequest)
 app.use('/', routesComment)
 app.use('/',routeEmail)
 app.use('/',routeAuthGoogle)
 
-
-
-
 //FIN
 ////////////////////////////////////////////////////////////////
 
-// app.get('/sesion', (req, res) => {
-//   req.session.username = 'johndoe';
-//   // res.send('Hello ' + JSON.stringify(req.session));
-//   // req.session.username = 'john.doe';
 
-//   // Save session to database
-//   const session = new Session({
-//     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-//     cookie: { originalMaxAge: 604800000, httpOnly: true, path: '/' },
-//     sessionId: 'some_session_id',
-//     sessionData: { some_key: 'some_value' }
-//   });
-  
-//   session.save()
-//     .then(() => {
-//       console.log('La sesión se ha guardado correctamente');
-//     })
-//     .catch((err) => {
-//       console.error('Error al guardar la sesión:', err);
-//     });
-// });
-
-// app.get('/prueba', (req, res) => {
-//  // req.session;
-//   res.send('Hello ' + JSON.stringify(req.session));
-//  // res.send('Session created successfully!');
-// });
 
 
 
@@ -157,29 +93,25 @@ app.use('/',routeAuthGoogle)
 ////////////////////////////////////////////////////////////////
 
 
+
+
 //otra ruta// Cambio de contraseña
 
 app.get('/verificacionToken', async (req, res) => {
-  const {token,email} = req.query;
+  const { v4: uuidv4 } = require('uuid');
 
+  //const uniqueId = uuidv4();
+  const {token,email} = req.query;
    await User.findOne({where: {resetPasswordToken:token}})
   .then(user => {
-  //  res.cookie(cookie_name , 'cookie_value', { maxAge: 900000, httpOnly: true ,sameSite:'lax'});
-   // res.cookie('miCookie', 'prueba', { maxAge: 200000, httpOnly: true ,sameSite:'lax'});
-   const session = new Session({
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        cookie: { originalMaxAge: 604800000, httpOnly: true, path: '/' },
-      //  // sessionId: 'some_session_id',
-        sessionData: user 
-      });
-
-      session.save()
-    .then(() => {
-      console.log('La sesión se ha guardado correctamente');
-    })
-    .catch((err) => {
-      console.log('Error al guardar la sesión:', err);
-    });
+    const user1=new SessionModel
+    user1.sessionID=req.sessionID
+    user1.session=user.email
+    identificadorUUI=uuidv4()
+    user1.save()
+    req.session.email=user.email
+   
+    
     const url = `http://localhost:5173/contrasenaNueva?token=${user.resetPasswordToken}&email=${user.email}}`;
   res.redirect(url)
   }).catch(err => {
@@ -188,65 +120,72 @@ app.get('/verificacionToken', async (req, res) => {
  
   
 
-  //data ?  res.status(200).json(data) : res.json({message: 'asegurese de su usuario este registrado'});
-  
-  /* try {
-    if(data === null){
-      res.status(400).json({ message: 'vuelva a enviar enlace' });
-    }
-    const url = `http://localhost:5173/contrasenaNueva?data=${data}`;
-    res.redirect(url)
-  } catch (error) {
-    res.status(500).json({ message: 'Error interno del servidor' });
-  } */
 })
 
 ////////////////////////////////////////////////////////////////
 //INICIO
-app.get('/newPassword', async (req, res) => {
-  //const miCookie = req;
+app.put('/newPassword', async (req, res) => {
 
-  const encryptedCookie = req; // aquí va la cookie encriptada
-
+  let {password, password2} = req.body;
 
 
-console.log(encryptedCookie);
- //
+
+
+//console.log(email);
+const seesionid = Object.keys(req.sessionStore.sessions)[0]
+//console.log(seesionid)
+
+const sessioUser= await SessionModel.findOne({ sessionID: seesionid })
+  .then(user => {
+   
+    
+   
+      User.findOne({ where: {email:user.session}})
+        .then(user=>{
+          if(user){
+           
+            password2 = bcrypt.hashSync(password2,10);
+             User.update({password: password2},
+              {where: {email: user.email}})
+              .then(user => res.status(200).json({ message: 'cambio de contraseña exitoso!'}))
+              .catch(err => res.json({ message: err.message }))
+          }else{
+            res.status(400).json({ message: "no se pudo" })
+          }
+
+        }).catch(err => res.json({ message: err.message}))
+      
+
+
+  })
+  .catch(error => console.error('Error al buscar usuario', error));
+
+
   
-  //console.log(miCookie,req.cookies);
-  // try {
-  //   let {password, password2} = req.body;
-  //   let user = await User.findOne({ where: {email}})
-  //   if(user){
-  //     password2 = bcrypt.hashSync(password2,10);
-  //     await User.update({password: password2},
-  //       {where: {email: email}})
-  //       .then(user => res.status(200).json({ message: 'cambio de contraseña exitoso!'}))
-  //       .catch(err => res.json({ message: err.message }))
-  //   }else{
-  //     res.status(400).json({ message: "no se pudo" })
-  //   }
-  // } catch (error) {
-  //   res.status(500).json({ message: error.message });
-  // }
 })
 
-// app.put('/newPassword', async (req, res) => {
-//   const {email} = req.query;
-//    // email ? console.log('llega') : console.log('no llega')
-//   try {
-//     let {password, password2} = req.body;
-//     let user = await User.findOne({ where: {email}})
-//     if(user){
-//       password2 = bcrypt.hashSync(password2,10);
-//       await User.update({password: password2},
-//         {where: {email: email}})
-//         .then(user => res.status(200).json({ message: 'cambio de contraseña exitoso!'}))
-//         .catch(err => res.json({ message: err.message }))
-//     }else{
-//       res.status(400).json({ message: "no se pudo" })
+// app.post("/logout", (req, res) => {
+//   req.session.destroy((err) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       console.log("Sesión finalizada correctamente");
+//       // Eliminar el token de autenticación de la base de datos
+//       if (req.session.authToken) {
+//         const User = mongoose.model("User");
+//         User.updateOne(
+//           { _id: req.session.userId },
+//           { $unset: { authToken: true } },
+//           (err) => {
+//             if (err) {
+//               console.log(err);
+//             } else {
+//               console.log("Token eliminado correctamente");
+//             }
+//           }
+//         );
+//       }
+//       res.redirect("/login");
 //     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// })
+//   });
+// });
