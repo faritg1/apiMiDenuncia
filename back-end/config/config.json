@@ -1,42 +1,23 @@
 {
   "development": {
     "username": "root",
-    "password": "HtHPNlZze083nigzzeIB",
-    "database": "railway",
-    "host": "containers-us-west-163.railway.app",
-    "dialect": "mysql",
-    "port":7956,
-    "dialectOptions": {
-      "connectTimeout": 10000,
-      "ssl": {
-        "rejectUnauthorized": false
-      }
-  }},
+    "password": null,
+    "database": "miDenuncia",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
   "test": {
     "username": "root",
-    "password": "HtHPNlZze083nigzzeIB",
+    "password": null,
     "database": "miDenuncia",
-    "host": "containers-us-west-163.railway.app",
-    "dialect": "mysql",
-    "port":7956,
-    "dialectOptions": {
-      "connectTimeout": 10000,
-      "ssl": {
-        "rejectUnauthorized": false
-      }
-  }},
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
   "production": {
     "username": "root",
-    "password": "HtHPNlZze083nigzzeIB",
+    "password": null,
     "database": "miDenuncia",
-    "host": "containers-us-west-163.railway.app",
-    "dialect": "mysql",
-    "port":7956,
-    "dialectOptions": {
-      "connectTimeout": 10000,
-      "ssl": {
-        "rejectUnauthorized": false
-      }
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   }
-}
 }
