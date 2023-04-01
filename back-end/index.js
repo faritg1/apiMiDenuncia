@@ -14,7 +14,7 @@ dotenv.config()
 
 const passport= require('passport');
 
-FIN
+//FIN
 //////////////////////////////////////////////////////////////
 
 //aqui se LLAMAN A A LAS RUTAS las rutas generales y que todo quede dentro de ella
@@ -26,7 +26,7 @@ const routeAuthGoogle = require('./routes/routeGoogle/route')
 const handleError = require('./handlers/handlerError')
 
 
-FIN
+//FIN
 //////////////////////////////////////////////////////////////
 
 
@@ -54,7 +54,7 @@ app.use('/',routeAuthGoogle)
 
 
 
-INICIO
+//INICIO
 //////////////////////////////////////////////////////////////
 
 
@@ -97,7 +97,7 @@ app.get('/verificacionToken', async (req, res) => {
 })
 
 //////////////////////////////////////////////////////////////
-INICIO
+//INICIO
 app.put('/newPassword', async (req, res) => {
   const referer = req.headers.referer;
   const urlParams = new URLSearchParams(referer.slice(referer.indexOf('?')));
